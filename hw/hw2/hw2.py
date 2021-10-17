@@ -3,7 +3,6 @@ import os
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import linear_kernel
 import numpy as np
-import json
 from typing import List
 
 from nltk.corpus import stopwords
@@ -29,9 +28,8 @@ class TfidfSearch:
 
     def rank_by_query(self, query: str) -> List[str]:
         query_indexed = self._index_text_collection([query])
-        similarities = self._compute_similarities(query_indexed)
-        print(np.argsort(similarities[:, 0]).shape)
-        return np.take_along_axis(self._corpus, np.argsort(-similarities[:, 0]), 0)
+        similarities = self._compute_similarities(query_indexed)[:, 0]
+        return np.take_along_axis(self._corpus, np.argsort(-similarities), 0)
 
 
 def preprocess_text(text):
@@ -44,25 +42,22 @@ def preprocess_text(text):
 
 
 def main():
-    # corpus = []
-    # for root, dirs, files in os.walk('friends-data'):
-    #     if '.ipynb_checkpoints' not in root:
-    #         for name in files:
-    #             filepath = os.path.join(root, name)
-    #             with open(filepath, encoding='utf-8') as f:
-    #                 text = f.read()
-    #                 corpus.append(text)
-    # assert len(corpus) == 165  # check for corpus size
+    corpus = []
+    for root, dirs, files in os.walk('friends-data'):
+        if '.ipynb_checkpoints' not in root:
+            for name in files:
+                filepath = os.path.join(root, name)
+                with open(filepath, encoding='utf-8') as f:
+                    text = f.read()
+                    corpus.append(text)
+    assert len(corpus) == 165  # check for corpus size
 
-    # start_time = time.time()
-    # corpus = [preprocess_text(text) for text in corpus]
-    # print(f'Corpus preprocessing took {time.time() - start_time} seconds')
-
-    with open('preprocessed_corpus.json', encoding='utf-8') as f:
-        corpus = json.load(f)
+    start_time = time.time()
+    corpus = [preprocess_text(text) for text in corpus]
+    print(f'Corpus preprocessing took {time.time() - start_time} seconds')
 
     search = TfidfSearch(corpus)
-    print(search.rank_by_query('лайза')[0])
+    print(search.rank_by_query('лайза минелли')[:2])
 
 
 if __name__ == '__main__':
