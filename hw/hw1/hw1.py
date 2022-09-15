@@ -2,7 +2,6 @@ import time
 import os
 from sklearn.feature_extraction.text import CountVectorizer
 import numpy as np
-import json
 from typing import List
 
 from nltk.corpus import stopwords
@@ -19,7 +18,7 @@ class InvertedIndex:
         self._corpus = corpus
         self._vectorizer = CountVectorizer()
         self.index = self._vectorizer.fit_transform(self._corpus)
-        self._words = np.array(self._vectorizer.get_feature_names())
+        self._words = np.array(self._vectorizer.get_feature_names_out())
         self._total_count = np.asarray(self.index.sum(axis=0)).squeeze()
 
     def get_most_frequent_word(self):
@@ -62,14 +61,9 @@ def main():
     assert len(corpus) == 165  # check for corpus size
 
     start_time = time.time()
+    print('Start preprocessing the corpus...')
     corpus = [preprocess_text(text) for text in corpus]
-    print(f'Corpus preprocessing took {time.time() - start_time} seconds')
-
-    # used for testing
-    # with open('preprocessed_corpus.json', 'w', encoding='utf-8') as f:
-    #     json.dump(corpus, f, ensure_ascii=False)
-    # with open('preprocessed_corpus.json', encoding='utf-8') as f:
-    #     corpus = json.load(f)
+    print(f'Corpus preprocessing took {time.time() - start_time} seconds')  # 83 sec when testing
 
     index = InvertedIndex(corpus)
 
