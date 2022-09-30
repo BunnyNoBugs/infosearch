@@ -16,14 +16,18 @@ nlp = spacy.load('ru_core_news_lg', disable=['ner', 'parser'])
 
 class TfidfSearch:
     def __init__(self):
+        """Create a search object."""
+        # Not sure what an __init__ docstring should look like!
         self._corpus = None
         self._vectorizer = TfidfVectorizer()
 
     def _index_text_collection(self, collection):
+        """Create an index of a given text collection."""
         return self._vectorizer.transform(collection)
 
     @staticmethod
     def _preprocess_text(text):
+        """Preprocess a given text."""
         doc = nlp(text)
         lemmas = [token.lemma_ for token in doc if token.is_alpha if token.pos_ != 'PRON' if
                   token.text not in STOPWORDS]
@@ -32,6 +36,7 @@ class TfidfSearch:
         return ' '.join(lemmas)
 
     def load_corpus(self, path):
+        """Load the corpus from a given path."""
         corpus = []
         for root, dirs, files in os.walk(path):
             if '.ipynb_checkpoints' not in root:
@@ -44,6 +49,7 @@ class TfidfSearch:
         self._index_corpus()
 
     def _index_corpus(self):
+        """Create an index of the loaded corpus."""
         start_time = time.time()
         self._preprocessed_corpus = [self._preprocess_text(text) for text in self._corpus]
         print(f'Corpus preprocessing took {time.time() - start_time} seconds')  # 83 seconds when testing
@@ -52,10 +58,12 @@ class TfidfSearch:
         self._index = self._index_text_collection(self._preprocessed_corpus)
 
     def _compute_similarities(self, query):
+        """Compute similarities of the docs in the corpus to the query."""
         # use linear_kernel as TfidfVectorizer returns l2-normalized vectors
         return linear_kernel(self._index, query)
 
     def rank_by_query(self, query: str) -> List[str]:
+        """Rank the docs of the corpus according to similarity to the query."""
         query_preprocessed = self._preprocess_text(query)
         query_indexed = self._index_text_collection([query_preprocessed])
         similarities = self._compute_similarities(query_indexed)[:, 0]
