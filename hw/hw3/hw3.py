@@ -69,7 +69,7 @@ class BM25Search:
         bm25 = csr_matrix((A.data / B.data, tf.nonzero()))
         self._index = bm25
 
-    def rank_by_query(self, query: str, results_limit=10) -> np:
+    def rank_by_query(self, query: str, results_limit=10):
         """
         Rank the docs of the corpus according to the query.
 
