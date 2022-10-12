@@ -83,6 +83,7 @@ class BM25Search:
         ranked_corpus = self._corpus[sorted_scores_idx]
         return ranked_corpus[:results_limit]
 
+
 def main():
     search = BM25Search()
     search.load_corpus('questions_about_love.jsonl', max_samples=50000)
