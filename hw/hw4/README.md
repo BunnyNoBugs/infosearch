@@ -1,1 +1,1 @@
-`BertSearch` in `hw4.py` implements search based on BERT embeddings. It has 0.029 hit rate at top-5 questions estimated on 1000 random samples from the corpus. The embeddings were computed in `compute_embeddings.ipynb`.
+`BertSearch` in `hw4.py` implements search based on BERT embeddings. It has 0.029 hit rate at top-5 questions estimated on 1000 random samples from the corpus. The embeddings were computed in `hw4_compute_embeddings.ipynb`.
