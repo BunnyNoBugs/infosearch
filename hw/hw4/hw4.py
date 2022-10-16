@@ -2,7 +2,6 @@ import pickle
 import json
 import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity
-from typing import Optional, List
 from functools import lru_cache
 from tqdm import tqdm
 
@@ -44,7 +43,7 @@ class BertSearch:
         with open(answers_path, 'rb') as f:
             self._answers_embeddings = pickle.load(f)
 
-    def rank_by_query(self, query: str, results_limit=5) -> Optional[List[str]]:
+    def rank_by_query(self, query: str, results_limit=5):
         """
         Rank the docs of the corpus according to the query.
 
