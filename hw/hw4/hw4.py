@@ -43,7 +43,6 @@ class BertSearch:
             self._questions_embeddings = pickle.load(f)
         with open(answers_path, 'rb') as f:
             self._answers_embeddings = pickle.load(f)
-        pass
 
     def rank_by_query(self, query: str, results_limit=5) -> Optional[List[str]]:
         """
