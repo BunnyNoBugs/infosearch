@@ -1,5 +1,7 @@
 .ipynb_checkpoints
+*.pyc
 hw/hw3/questions_about_love.jsonl
 
 .idea/
 hw/hw4/data
+hw/project/hf_token.py
