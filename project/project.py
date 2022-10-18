@@ -181,8 +181,8 @@ class Search:
 
 
 def main():
-    search = Search(corpus_path='../hw4/data/corpus_50000.json',
-                    embeddings_path='../hw4/data/answers_embeddings.pickle')
+    search = Search(corpus_path='../hw/hw4/data/corpus_50000.json',
+                    embeddings_path='../hw/hw4/data/answers_embeddings.pickle')
     search.method = 'bert'
     print(search.rank_by_query('С мужчиной не видимся'))
 
