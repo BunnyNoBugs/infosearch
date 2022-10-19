@@ -1,0 +1,11 @@
+numpy>=1.23.3
+spacy>=3.0.3
+sklearn>=0.0
+scikit-learn>=1.1.1
+nltk>=3.5
+scipy>=1.9.2
+tqdm>=4.62.3
+streamlit>=1.13.0
+torch>=1.10.1
+requests>=2.25.0
+transformers>=4.15.0

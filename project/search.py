@@ -127,7 +127,7 @@ class _BertEngine:
         query_embedding = self._get_query_embedding(query)
         scores = cosine_similarity(self._embeddings, query_embedding)
         sorted_scores_idx = scores.argsort(axis=0)[::-1]
-        ranked_corpus = self._corpus[sorted_scores_idx]
+        ranked_corpus = self._corpus[sorted_scores_idx].ravel()
         return ranked_corpus
 
 
@@ -176,8 +176,8 @@ class Search:
     def rank_by_query(self, query: str, results_limit=10):
         start_time = time.time()
         search_results = self._engine.rank_by_query(query)
-        print(f'Search runtime: {round(time.time() - start_time, 2)} sec')
-        return search_results[:results_limit]
+        runtime = time.time() - start_time
+        return search_results[:results_limit], runtime
 
 
 def main():
