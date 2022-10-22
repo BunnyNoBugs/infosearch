@@ -9,17 +9,14 @@ from sklearn.feature_extraction.text import TfidfVectorizer, CountVectorizer
 from scipy.sparse import csr_matrix
 from sklearn.metrics.pairwise import cosine_similarity
 from transformers import AutoTokenizer
-
 from hf_token import hf_token
 from nltk.corpus import stopwords
 
-STOPWORDS = stopwords.words('russian')
-
 
 class _TfidfEngine:
-    def __init__(self, corpus):
+    def __init__(self, corpus, stopwords_):
         self._corpus = corpus
-        self._vectorizer = TfidfVectorizer(stop_words=STOPWORDS)
+        self._vectorizer = TfidfVectorizer(stop_words=stopwords_)
         self._index = None
         self._index_corpus()
 
@@ -35,9 +32,10 @@ class _TfidfEngine:
 
 
 class _BM25Engine:
-    def __init__(self, corpus):
+    def __init__(self, corpus, stopwords_):
         self._corpus = corpus
-        self._vectorizer = CountVectorizer(stop_words=STOPWORDS)
+        self._stopwords = stopwords_
+        self._vectorizer = CountVectorizer(stop_words=self._stopwords)
         self._index = None
         self._index_corpus()
 
@@ -50,7 +48,7 @@ class _BM25Engine:
         """
         tf = self._vectorizer.fit_transform(self._corpus)
 
-        idf_vectorizer = TfidfVectorizer(use_idf=True, stop_words=STOPWORDS)
+        idf_vectorizer = TfidfVectorizer(use_idf=True, stop_words=self._stopwords)
         idf_vectorizer.fit(self._corpus)
         idf = idf_vectorizer.idf_
 
@@ -136,13 +134,16 @@ class Search:
     todo: add doc
     """
 
-    def __init__(self, corpus_path, embeddings_path):
+    def __init__(self, corpus_path, embeddings_path, use_stopwords=False):
         self._corpus = None
         self._method = None
         self._engine = None
         self._load_corpus(corpus_path)
-        self._tfidf_engine = _TfidfEngine(self._corpus)
-        self._bm25_engine = _BM25Engine(self._corpus)
+        self._stopwords = None
+        if use_stopwords:
+            self._stopwords = stopwords.words('russian')
+        self._tfidf_engine = _TfidfEngine(self._corpus, self._stopwords)
+        self._bm25_engine = _BM25Engine(self._corpus, self._stopwords)
         self._bert_engine = _BertEngine(self._corpus, embeddings_path)
         self._SEARCH_ENGINES = {
             'tfidf': self._tfidf_engine,
@@ -182,9 +183,10 @@ class Search:
 
 def main():
     search = Search(corpus_path='../hw/hw4/data/corpus_50000.json',
-                    embeddings_path='../hw/hw4/data/answers_embeddings.pickle')
-    search.method = 'bert'
-    print(search.rank_by_query('С мужчиной не видимся'))
+                    embeddings_path='../hw/hw4/data/answers_embeddings.pickle',
+                    use_stopwords=False)
+    search.method = 'bm25'
+    print(search.rank_by_query('а любовь всегда настоящая))))) Просто есть любовь а есть не любовь'))
 
 
 if __name__ == '__main__':
