@@ -14,16 +14,33 @@ from nltk.corpus import stopwords
 
 
 class _TfidfEngine:
+    """Implements TF-IDF search engine."""
+
     def __init__(self, corpus, stopwords_):
+        """
+        Create TF-IDF search engine object.
+
+        :param corpus: corpus of documents
+        :param stopwords_: stopwords to exclude during search
+        """
         self._corpus = corpus
         self._vectorizer = TfidfVectorizer(stop_words=stopwords_)
         self._index = None
         self._index_corpus()
 
     def _index_corpus(self):
+        """
+        Index the corpus with TF-IDF.
+        """
         self._index = self._vectorizer.fit_transform(self._corpus)
 
     def rank_by_query(self, query: str):
+        """
+        Rank the docs of the corpus according to the query.
+
+        :param query: text of the query
+        :return: ranked docs of the corpus
+        """
         query_vectorized = self._vectorizer.transform([query]).T
         scores = (self._index * query_vectorized).toarray().ravel()
         sorted_scores_idx = scores.argsort(axis=0)[::-1]
@@ -32,7 +49,15 @@ class _TfidfEngine:
 
 
 class _BM25Engine:
+    """Implements BM25 search engine."""
+
     def __init__(self, corpus, stopwords_):
+        """
+        Create BM25 search engine object.
+
+        :param corpus: corpus of documents
+        :param stopwords_: stopwords to exclude during search
+        """
         self._corpus = corpus
         self._stopwords = stopwords_
         self._vectorizer = CountVectorizer(stop_words=self._stopwords)
@@ -78,7 +103,15 @@ class _BM25Engine:
 
 
 class _BertEngine:
+    """Implements BERT search engine."""
+
     def __init__(self, corpus, embeddings_path):
+        """
+        Create BERT search engine object.
+
+        :param corpus: corpus of documents
+        :param embeddings_path: path to BERT embeddings of the corpus
+        """
         self._model_id = 'sberbank-ai/sbert_large_nlu_ru'
         self._tokenizer = AutoTokenizer.from_pretrained(self._model_id)
         self._corpus = corpus
@@ -87,7 +120,7 @@ class _BertEngine:
 
     def load_embeddings(self, embeddings_path):
         """
-        Load precomputed embeddings.
+        Load precomputed BERT embeddings.
 
         :param embeddings_path: path to embeddings
         """
@@ -95,6 +128,13 @@ class _BertEngine:
             self._embeddings = pickle.load(f)
 
     def _get_query_embedding(self, query: str):
+        """
+        Get a BERT embedding of the query.
+
+        :param query: text of the query
+        :return: BERT embedding of the query
+        """
+
         def api_call(texts):
             response = requests.post(api_url, headers=headers,
                                      json={"inputs": texts, "options": {"wait_for_model": True}})
@@ -131,10 +171,17 @@ class _BertEngine:
 
 class Search:
     """
-    todo: add doc
+    Implements search by a given corpus with three search methods to choose from: TF-IDF, BM25 and BERT.
     """
 
     def __init__(self, corpus_path, embeddings_path, use_stopwords=False):
+        """
+        Create search object.
+
+        :param corpus_path: path to the corpus
+        :param embeddings_path: path to BERT embeddings
+        :param use_stopwords: whether to exclude stopwords during search
+        """
         self._corpus = None
         self._method = None
         self._engine = None
@@ -154,10 +201,17 @@ class Search:
 
     @property
     def method(self):
+        """
+        Get current search method.
+        """
         return self._method
 
     @method.setter
     def method(self, search_method: Literal['tfidf', 'bm25', 'bert']):
+        """
+        Set search method.
+        :param search_method: method to set
+        """
         if search_method in self._SEARCH_ENGINES:
             self._method = search_method
             self._engine = self._SEARCH_ENGINES[self._method]
@@ -175,6 +229,13 @@ class Search:
         self._corpus = np.array(list(corpus.values()))
 
     def rank_by_query(self, query: str, results_limit=10):
+        """
+        Rank the docs of the corpus according to the query.
+
+        :param query: text of the query
+        :param results_limit: number of docs to return
+        :return: top N docs in the corpus
+        """
         start_time = time.time()
         search_results = self._engine.rank_by_query(query)
         runtime = time.time() - start_time
